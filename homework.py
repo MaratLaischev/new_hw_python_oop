@@ -60,17 +60,18 @@ class Running(Training):
     COEF_2 = 1.79
 
     def get_spent_calories(self) -> float:
-        calory = ((self.COEF_1 * self.get_mean_speed() + self.COEF_2) *
-                  self.weight / self.M_IN_KM * (self.duration * self.SEKONDS))
+        calory = ((self.COEF_1 * self.get_mean_speed() + self.COEF_2)
+                  * self.weight / self.M_IN_KM
+                  * (self.duration * self.SEKONDS))
         return calory
 
 
 class SportsWalking(Training):
+    """Тренировка: спортивная ходьба."""
     COEF_1 = 0.035
     M = 100
     COEF_2 = 0.029
     M_S = 0.278
-    """Тренировка: спортивная ходьба."""
     def __init__(self,
                  action: int,
                  duration: float,
@@ -83,9 +84,9 @@ class SportsWalking(Training):
     def get_spent_calories(self) -> float:
         spid_km_h = self.get_mean_speed()
         spid_m_s = spid_km_h * self.M_S
-        calories = ((self.COEF_1 * self.weight + (spid_m_s ** 2 /
-                    (self.height / self.M)) * self.COEF_2 *
-                    self.weight) * self.duration * self.SEKONDS)
+        calories = ((self.COEF_1 * self.weight
+                    + (spid_m_s ** 2 / ((self.height / self.M)) * self.COEF_2)
+                    * self.weight) * self.duration * self.SEKONDS)
         return calories
 
 
@@ -112,18 +113,16 @@ class Swimming(Training):
         return speed
 
     def get_spent_calories(self) -> float:
-        calories = ((self.get_mean_speed() + self.CONS_1) *
-                    self.CONS_2 * self.weight * self.duration)
+        calories = ((self.get_mean_speed() + self.CONS_1)
+                    * self.CONS_2 * self.weight * self.duration)
         return calories
 
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    class_datchic = {
-                     'SWM': Swimming,
+    class_datchic = {'SWM': Swimming,
                      'RUN': Running,
-                     'WLK': SportsWalking,
-                    }
+                     'WLK': SportsWalking}
     return class_datchic[workout_type](*data)
 
 
