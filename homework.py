@@ -1,3 +1,5 @@
+
+
 class InfoMessage:
     """Информационное сообщение о тренировке."""
     def __init__(self, training_type: str,
@@ -72,6 +74,7 @@ class SportsWalking(Training):
     M = 100
     COEF_2 = 0.029
     M_S = 0.278
+
     def __init__(self,
                  action: int,
                  duration: float,
