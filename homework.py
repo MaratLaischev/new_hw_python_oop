@@ -9,21 +9,21 @@ class InfoMessage:
     distance: float
     speed: float
     calories: float
-    MESSAGE: str = ('Тип тренировки: {training_type}; '
+    message: str = ('Тип тренировки: {training_type}; '
                     'Длительность: {duration:.3f} ч.; '
                     'Дистанция: {distance:.3f} км; '
                     'Ср. скорость: {speed:.3f} км/ч; '
                     'Потрачено ккал: {calories:.3f}.')
 
     def get_message(self) -> str:
-        return self.MESSAGE.format(**asdict(self))
+        return self.message.format(**asdict(self))
 
 
 class Training:
     """Базовый класс тренировки."""
     M_IN_KM: int = 1000
     LEN_STEP: float = 0.65
-    MINUTES: int = 60
+    MINUTES_PER_HOUR: int = 60
 
     def __init__(self,
                  action: int,
@@ -60,19 +60,19 @@ class Running(Training):
     CALORIES_MEAN_SPEED_SHIFT = 1.79
 
     def get_spent_calories(self) -> float:
-        calory = ((self.CALORIES_MEAN_SPEED_MULTIPLIER * self.get_mean_speed()
-                  + self.CALORIES_MEAN_SPEED_SHIFT)
-                  * self.weight / self.M_IN_KM
-                  * (self.duration * self.MINUTES))
-        return calory
+        return ((self.CALORIES_MEAN_SPEED_MULTIPLIER
+                * self.get_mean_speed()
+                + self.CALORIES_MEAN_SPEED_SHIFT)
+                * self.weight / self.M_IN_KM
+                * (self.duration * self.MINUTES_PER_HOUR))
 
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
     CALORIES_MEAN_WEIGHT_SHIFT = 0.035
     CALORIES_MEAN_SPEED_SHIFT = 0.029
-    METERS = 100
-    METERS_PER_SECOND = 0.278
+    CENTIMETERS_PER_METER = 100
+    KILOMETERS_IN_MILLISECONDS = 0.278
 
     def __init__(self,
                  action: int,
@@ -84,11 +84,11 @@ class SportsWalking(Training):
         self.height = height
 
     def get_spent_calories(self) -> float:
-        speed = self.get_mean_speed() * self.METERS_PER_SECOND
+        speed = self.get_mean_speed() * self.KILOMETERS_IN_MILLISECONDS
         return ((self.CALORIES_MEAN_WEIGHT_SHIFT * self.weight + (speed ** 2
-                / ((self.height / self.METERS))
+                / ((self.height / self.CENTIMETERS_PER_METER))
                 * self.CALORIES_MEAN_SPEED_SHIFT) * self.weight)
-                * self.duration * self.MINUTES)
+                * self.duration * self.MINUTES_PER_HOUR)
 
 
 class Swimming(Training):
@@ -109,8 +109,8 @@ class Swimming(Training):
         self.count_pool = count_pool
 
     def get_mean_speed(self) -> float:
-        pools = self.length_pool * self.count_pool
-        return (pools / self.M_IN_KM) / self.duration
+        return ((self.length_pool * self.count_pool
+                / self.M_IN_KM) / self.duration)
 
     def get_spent_calories(self) -> float:
         return ((self.get_mean_speed() + self.CALORIES_MEAN_SPEED_SHIFT)
@@ -118,15 +118,14 @@ class Swimming(Training):
                 * self.weight * self.duration)
 
 
-def read_package(workout_type: str, data: list[str]) -> Training:
+def read_package(workout_type: str, data: list[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    try:
-        trainings_mapping = {'SWM': Swimming,
-                             'RUN': Running,
-                             'WLK': SportsWalking}
-    except KeyError:
-        raise
-    return trainings_mapping[workout_type](*data)
+    trainings_mapping = {'SWM': Swimming,
+                         'RUN': Running,
+                         'WLK': SportsWalking}
+    if workout_type in trainings_mapping:
+        return trainings_mapping[workout_type](*data)
+    raise BaseException('Неизвестная тренировка')
 
 
 def main(training: Training) -> None:
