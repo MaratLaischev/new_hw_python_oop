@@ -118,14 +118,14 @@ class Swimming(Training):
                 * self.weight * self.duration)
 
 
-def read_package(workout_type: str, data: list[int]) -> Training:
+def read_package(workout_type: str, data: list[float]) -> Training:
     """Прочитать данные полученные от датчиков."""
     trainings_mapping = {'SWM': Swimming,
                          'RUN': Running,
                          'WLK': SportsWalking}
     if workout_type in trainings_mapping:
         return trainings_mapping[workout_type](*data)
-    raise BaseException('Неизвестная тренировка')
+    raise ValueError('Неизвестная тренировка')
 
 
 def main(training: Training) -> None:
